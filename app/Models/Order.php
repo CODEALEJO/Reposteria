@@ -9,7 +9,7 @@ class Order extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'cake_id', 'delivery_date', 'order_status'];
+    protected $fillable = ['user_id', 'cake_id', 'delivery_date', 'order_status', 'priority'    ];
 
     public function user()
     {
@@ -24,10 +24,5 @@ class Order extends Model
     public function ingredients()
     {
         return $this->belongsToMany(Ingredient::class, 'order_ingredients');
-    }
-
-    public function clientCakes()
-    {
-        return $this->hasMany(ClientCake::class);
     }
 }

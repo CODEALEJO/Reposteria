@@ -2,65 +2,64 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreOrderRequest;
-use App\Http\Requests\UpdateOrderRequest;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Cake;
+use App\Models\Ingredient;
 use App\Models\Order;
 
 class OrderController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
+     /**
+     * Muestra el formulario para crear un nuevo pedido.
      */
     public function create()
     {
-        //
+        $cakes = Cake::all();
+        $ingredients = Ingredient::all();
+        return view('orders.create', compact('cakes', 'ingredients'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Guarda un nuevo pedido.
      */
-    public function store(StoreOrderRequest $request)
+    public function store(Request $request)
     {
-        //
+        $request->validate([
+            'cake_id' => 'required|exists:cakes,id',
+            'delivery_date' => 'required|date',
+            'order_status' => 'required|string',
+        ]);
+
+        $order = new Order();
+        $order->user_id = Auth::id();
+        $order->cake_id = $request->cake_id;
+        $order->delivery_date = $request->delivery_date;
+        $order->order_status = $request->order_status;
+        $order->save();
+
+        // Agregar ingredientes al pedido
+        $order->ingredients()->attach($request->ingredients);
+
+        return redirect()->route('orders.index')->with('success', 'Pedido creado exitosamente');
     }
 
     /**
-     * Display the specified resource.
+     * Muestra todos los pedidos.
      */
-    public function show(Order $order)
+    public function index()
     {
-        //
+        $orders = Order::all();
+        return view('orders.index', compact('orders'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Muestra los detalles de un pedido.
      */
-    public function edit(Order $order)
+    public function show($id)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateOrderRequest $request, Order $order)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Order $order)
-    {
-        //
+        $order = Order::findOrFail($id);
+        return view('orders.show', compact('order'));
     }
 }

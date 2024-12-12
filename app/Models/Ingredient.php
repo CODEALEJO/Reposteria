@@ -11,8 +11,8 @@ class Ingredient extends Model
 
     protected $fillable = ['name'];
 
-    public function orders()
+    public function cakes()
     {
-        return $this->belongsToMany(Order::class, 'order_ingredients');
+        return $this->belongsToMany(Cake::class, 'cake_ingredient');
     }
 }
